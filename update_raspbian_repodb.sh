@@ -5,7 +5,7 @@
 # @date $Date$
 # @author Noriaki Ando <n-ando@aist.go.jp>
 #
-# Copyright (C) 2008-2012
+# Copyright (C) 2008-2020
 #     Noriaki Ando
 #     Intelligent Systems Research Institute,
 #     National Institute of
@@ -21,6 +21,8 @@
 #   debug print flag
 # BASE_DIR:
 #   pacakge base directory that is ending in the name 'ubuntu.'
+# CODENAMES:
+#   target codenames of ubuntu
 # VERSIONS:
 #   target version name of ubuntu
 # ARCHS:
@@ -63,9 +65,9 @@ get_distroseries()
 #	fi
 #	rm -f /tmp/meta-release.stamp
 #    fi
-    ALL_DISTRO=`awk 'BEGIN{RS="";FS="\n";}{sub("Dist: ",""); sub(" ","",$1); printf("%s ",$1);}END{printf("\n")}' /tmp/meta-release`
-    SUPPORTED=`awk 'BEGIN{RS="";FS="\n";}{if ($5 == "Supported: 1"){sub("Dist: ",""); sub(" ","",$1); printf("%s ",$1);}}END{printf("\n")}' /tmp/meta-release`
-    SUPPORTED_LIST=`awk 'BEGIN{RS="";FS="\n";}{if ($5 == "Supported: 1"){sub("Dist: ",""); sub("Version: ",""); printf("%s\t%s,",$1,$3);}}' /tmp/meta-release`
+#    ALL_DISTRO=`awk 'BEGIN{RS="";FS="\n";}{sub("Dist: ",""); sub(" ","",$1); printf("%s ",$1);}END{printf("\n")}' /tmp/meta-release`
+#    SUPPORTED=`awk 'BEGIN{RS="";FS="\n";}{if ($5 == "Supported: 1"){sub("Dist: ",""); sub(" ","",$1); printf("%s ",$1);}}END{printf("\n")}' /tmp/meta-release`
+#    SUPPORTED_LIST=`awk 'BEGIN{RS="";FS="\n";}{if ($5 == "Supported: 1"){sub("Dist: ",""); sub("Version: ",""); printf("%s\t%s,",$1,$3);}}' /tmp/meta-release`
     ALL_DISTRO="wheezy jessie stretch buster"
     SUPPORTED="wheezy jessie stretch buster"
     SUPPORTED_LIST="wheezy jessie stretch buster"
@@ -73,7 +75,7 @@ get_distroseries()
 
 print_short_usage()
 {
-    get_distroseries
+#    get_distroseries
     echo "\nUsage: $(basename $0) [OPTION]... [TARGET REPO DIR]"
     echo ""
     echo "Optinos:"
@@ -125,10 +127,10 @@ get_opt()
         case $OPT in
             \?) print_short_usage; exit 1;;
 	    a) ARCHS="$ARCHS $OPTARG";;
-            d) VERSIONS="$VERSIONS $OPTARG";;
+            d) CODENAMES="$CODENAMES $OPTARG";;
             s)
 		get_distroseries
-		VERSIONS="$SUPPORTED";;
+		CODENAMES="$SUPPORTED";;
 	    f) FORCE_UPDATE="YES";;
             h) print_usage; exit 0;
         esac
@@ -145,9 +147,9 @@ get_opt()
     fi
 
     # If -d/-s are not specified, all distro's package DB are updated.
-    if test "x$VERSIONS" = "x"; then
-	get_distroseries
-	VERSIONS=$ALL_DISTRO
+    if test "x$CODENAMES" = "x"; then
+#	get_distroseries
+	CODENAMES=$ALL_DISTRO
     fi
     if test "x$ARCHS" = "x"; then
 	ARCHS=$DEFAULT_ARCHS
@@ -156,7 +158,7 @@ get_opt()
     # DEBUG
     if ! test "x$DEBUG" = "x"; then
 	echo "BASE_DIR: " $BASE_DIR
-        echo "VERSIONS: " $VERSIONS
+        echo "CODENAMES: " $CODENAMES
         echo "ARCHS   : " $ARCHS
     fi
 }
@@ -173,7 +175,7 @@ get_opt()
 #------------------------------------------------------------
 have_new_package()
 {
-    if test "x$FORCE_UPDATE" = "xtrue"; then
+    if test "x$FORCE_UPDATE" = "xYES"; then
 	return 0
     fi
     debdir=$1
@@ -193,12 +195,13 @@ have_new_package()
 #----------
 # main
 #----------
+get_distroseries
 get_opt $@
 cd  $BASE_DIR
 
-for version in $VERSIONS; do
+for codename in $CODENAMES; do
     for arch in $ARCHS ; do
-	pkg_dir=dists/$version/main/binary-$arch
+	pkg_dir=dists/$codename/main/binary-$arch
 	if test ! -d $pkg_dir; then
 	    echo ""
 	    echo "No package directory exists:"
@@ -211,9 +214,17 @@ for version in $VERSIONS; do
 	    echo "    $pkg_dir"
 	    dpkg-scanpackages -m $pkg_dir > $BASE_DIR/$pkg_dir/Packages
 	    gzip -c $BASE_DIR/$pkg_dir/Packages > $BASE_DIR/$pkg_dir/Packages.gz
-            apt-ftparchive release dists/$version > dists/$version/Release
-            gpg2 -abs --yes --digest-algo SHA256 --batch --passphrase-file /home/openrtm/.openrtm-key-psw -o dists/$version/Release.gpg dists/$version/Release
-            gpg2 -as --clearsign --yes --digest-algo SHA256 --batch --passphrase-file /home/openrtm/.openrtm-key-psw -o dists/$version/InRelease dists/$version/Release
+            apt-ftparchive \
+		-o APT::FTPArchive::Release::Origin="OpenRTM-aist" \
+                -o APT::FTPArchive::Release::Label="Packages hosted by OpenRTM-aist" \
+                -o APT::FTPArchive::Release::Suite="$codename" \
+                -o APT::FTPArchive::Release::Codename="$codename" \
+                -o APT::FTPArchive::Release::Architectures="armhf" \
+                -o APT::FTPArchive::Release::Components="main" \
+                -o APT::FTPArchive::Release::Description="Debian armhf distribution for Raspberry Pi" \
+	    	release dists/$codename > dists/$codename/Release
+            gpg2 -abs --yes --digest-algo SHA256 --batch --passphrase-file /home/openrtm/.openrtm-key-psw -o dists/$codename/Release.gpg dists/$codename/Release
+            gpg2 -as --clearsign --yes --digest-algo SHA256 --batch --passphrase-file /home/openrtm/.openrtm-key-psw -o dists/$codename/InRelease dists/$codename/Release
 	else
 	    echo ""
 	    echo "No new packages found under: "
