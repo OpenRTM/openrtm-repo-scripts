@@ -37,7 +37,7 @@
 
 # Base directory of repository
 BASE_DIR=/home/openrtm/public_html/pub/Linux/raspbian
-DEFAULT_ARCHS="i386 amd64 armel armhf"
+DEFAULT_ARCHS="armhf arm64"
 #DEBUG="TRUE"
 
 #------------------------------------------------------------
@@ -68,9 +68,9 @@ get_distroseries()
 #    ALL_DISTRO=`awk 'BEGIN{RS="";FS="\n";}{sub("Dist: ",""); sub(" ","",$1); printf("%s ",$1);}END{printf("\n")}' /tmp/meta-release`
 #    SUPPORTED=`awk 'BEGIN{RS="";FS="\n";}{if ($5 == "Supported: 1"){sub("Dist: ",""); sub(" ","",$1); printf("%s ",$1);}}END{printf("\n")}' /tmp/meta-release`
 #    SUPPORTED_LIST=`awk 'BEGIN{RS="";FS="\n";}{if ($5 == "Supported: 1"){sub("Dist: ",""); sub("Version: ",""); printf("%s\t%s,",$1,$3);}}' /tmp/meta-release`
-    ALL_DISTRO="wheezy jessie stretch buster"
-    SUPPORTED="wheezy jessie stretch buster"
-    SUPPORTED_LIST="wheezy jessie stretch buster"
+    ALL_DISTRO="buster bullseye"
+    SUPPORTED="buster bullseye"
+    SUPPORTED_LIST="buster bullseye"
 }
 
 print_short_usage()
