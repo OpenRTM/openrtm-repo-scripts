@@ -68,9 +68,9 @@ get_distroseries()
 #    ALL_DISTRO=`awk 'BEGIN{RS="";FS="\n";}{sub("Dist: ",""); sub(" ","",$1); printf("%s ",$1);}END{printf("\n")}' /tmp/meta-release`
 #    SUPPORTED=`awk 'BEGIN{RS="";FS="\n";}{if ($5 == "Supported: 1"){sub("Dist: ",""); sub(" ","",$1); printf("%s ",$1);}}END{printf("\n")}' /tmp/meta-release`
 #    SUPPORTED_LIST=`awk 'BEGIN{RS="";FS="\n";}{if ($5 == "Supported: 1"){sub("Dist: ",""); sub("Version: ",""); printf("%s\t%s,",$1,$3);}}' /tmp/meta-release`
-    ALL_DISTRO="buster bullseye"
-    SUPPORTED="buster bullseye"
-    SUPPORTED_LIST="buster bullseye"
+    ALL_DISTRO="bullseye bookworm"
+    SUPPORTED="bullseye bookworm"
+    SUPPORTED_LIST="bullseye bookworm"
 }
 
 print_short_usage()
