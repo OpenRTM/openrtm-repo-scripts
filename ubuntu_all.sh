@@ -16,3 +16,4 @@ fi
 SCRIPT_DIR=$(cd $(dirname  $0); pwd)
 ${SCRIPT_DIR}/update_ubuntu_repodb.sh -f -d focal $1/public_html/pub/Linux/ubuntu
 ${SCRIPT_DIR}/update_ubuntu_repodb.sh -f -d jammy $1/public_html/pub/Linux/ubuntu
+${SCRIPT_DIR}/update_ubuntu_repodb.sh -f -d noble $1/public_html/pub/Linux/ubuntu
