@@ -5,7 +5,7 @@
 # @date $Date$
 # @author Noriaki Ando <n-ando@aist.go.jp>
 #
-# Copyright (C) 2008-2020
+# Copyright (C) 2008-2025
 #     Noriaki Ando
 #     Intelligent Systems Research Institute,
 #     National Institute of
@@ -219,12 +219,12 @@ for codename in $CODENAMES; do
                 -o APT::FTPArchive::Release::Label="Packages hosted by OpenRTM-aist" \
                 -o APT::FTPArchive::Release::Suite="$codename" \
                 -o APT::FTPArchive::Release::Codename="$codename" \
-                -o APT::FTPArchive::Release::Architectures="armhf" \
+                -o APT::FTPArchive::Release::Architectures="armhf arm64" \
                 -o APT::FTPArchive::Release::Components="main" \
                 -o APT::FTPArchive::Release::Description="Debian armhf distribution for Raspberry Pi" \
 	    	release dists/$codename > dists/$codename/Release
-            gpg2 -abs --yes --digest-algo SHA256 --batch --passphrase-file /home/openrtm/.openrtm-key-psw -o dists/$codename/Release.gpg dists/$codename/Release
-            gpg2 -as --clearsign --yes --digest-algo SHA256 --batch --passphrase-file /home/openrtm/.openrtm-key-psw -o dists/$codename/InRelease dists/$codename/Release
+            gpg --batch -abs --yes --digest-algo SHA256 -o dists/$codename/Release.gpg dists/$codename/Release
+            gpg --batch --clearsign --no-armor --yes --digest-algo SHA256 -o dists/$codename/InRelease dists/$codename/Release
 	else
 	    echo ""
 	    echo "No new packages found under: "
